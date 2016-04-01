@@ -45,18 +45,26 @@ powwowList = []
 with open('input.csv', 'rb') as f:
     reader = csv.reader(f)
     for i, line in enumerate(reader):
-	if(int(line[0]) != None and line[0] > 0):
-            assert type(line[0]) == int, "FUCK NOT INT"
-	    powwowList.append(line)
-            start_num = line[0]
-	    print start_num
-            print 'line[{}] = {}'.format(i, line)
+    	if(line[0].isdigit() and line[0] > 0):
+            key = int(line[0])
+            print "key is: " + str(key)
+
+            #Try defining dictionary
+            if key in dictJobs:
+                dictJobs[key]["data"].append(line)
+            else:
+                dictJobs[key] = {"stage": 1, "release": line[1], "end": line[2], "data": [line]}
+            start_num = key
+    	    # print start_num
+            # print 'line[{}] = {}'.format(i, line)
 
 print("-----------------------------------------------------------------------------------------------------")
 print("-----------------------------------------------------------------------------------------------------")
 print("-----------------------------------------------------------------------------------------------------")
-print '[%s]' % ', '.join(map(str, powwowList))
-print ("Jobs" > 0)
+# print '[%s]' % ', '.join(map(str, powwowList))
+print dictJobs
+print len(dictJobs)
+
 
 
 # start_date = "10/10/11"
