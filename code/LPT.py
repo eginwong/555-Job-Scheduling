@@ -37,35 +37,25 @@
 import datetime
 import csv
 
-#To start off counter for csv read.
-start_num = 0
 dictJobs = {}
-powwowList = []
 #read in the csv.
 with open('input.csv', 'rb') as f:
     reader = csv.reader(f)
     for i, line in enumerate(reader):
     	if(line[0].isdigit() and line[0] > 0):
             key = int(line[0])
-            print "key is: " + str(key)
-
             #Try defining dictionary
             if key in dictJobs:
-                dictJobs[key]["data"].append(line)
+                dictJobs[key]["data"].append([line[3],line[4]])
             else:
-                dictJobs[key] = {"stage": 1, "release": line[1], "end": line[2], "data": [line]}
-            start_num = key
-    	    # print start_num
-            # print 'line[{}] = {}'.format(i, line)
+                dictJobs[key] = {"stage": 1, "release": line[1], "end": line[2], "data": [line[3], line[4]]}
 
 print("-----------------------------------------------------------------------------------------------------")
 print("-----------------------------------------------------------------------------------------------------")
 print("-----------------------------------------------------------------------------------------------------")
 # print '[%s]' % ', '.join(map(str, powwowList))
 print dictJobs
-print len(dictJobs)
-
-
+print "Total number of jobs in the dictionary: " + str(len(dictJobs))
 
 # start_date = "10/10/11"
 # date_1 = datetime.datetime.strptime(start_date, "%m/%d/%y")
