@@ -1,0 +1,62 @@
+
+LPT: sort queue by longest processing time of stages in q
+SPT: sort queue by shortest processing time of stages in q
+EDD: sort queue by earliest due date of job in q
+
+loop
+
+(m machines, n jobs, t1 to tn)
+for i = 1 to m {
+Li < 0 (load on machine i)
+J(i) < phi (jobs assigned to machine i)
+}
+
+for j=1 to n {
+i = argmink Lk (machine i has smallest load)
+J(i) <- J(i) union {j} (assign job j to machine i)
+Li <- Li + tj (update load of machine i)
+return J(1), ..., J(m)
+}
+
+
+need time, machine status
+do we need to convert days to time?
+http://stackoverflow.com/questions/6871016/adding-5-days-to-date-in-python
+
+
+
+
+Define job as array of job#, stage, release, end, lateness, actual data of stages.
+
+t=0 to start
+start_date;
+
+While jobs are in queue or in transit
+{
+
+Check date and add available jobs to queue
+	What's released by date
+	Check what's in transit
+Refresh machines (Complete any jobs that are there)
+	If jobs are finished, calculate lateness
+	Else: toss into transit queue with time it's finished
+
+for each job in queue, check if machine is free. If yes, assign job to machine queue.
+	when assigning, store job#, t=expected end
+
+update time to next event (machine is free)
+update actual date as well.
+	take difference in i
+
+	if (day is Friday){
+		if i >= 7.5
+			move one day over
+	}
+	(complicated part of sorting out times from finishing machines)
+}
+
+
+
+Finally, calculate total percentage of jobs that are late. If lateness exists, increment counter by 1, divide by length of array.
+
+Talk about the central algorithm and how you did it. I suggest drawing an image of the queueing system.

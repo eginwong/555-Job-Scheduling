@@ -1,2 +1,4 @@
 # MSCI555_Case
-For the case study, 2016
+For the case study of 2016
+
+Using python for the implementation.
