@@ -15,15 +15,13 @@ with open('input.csv', 'rb') as f:
             else:
                 dictJobs[key] = {"stage": 1, "release": datetime.datetime.strptime(line[1], "%d-%b-%y"), "end": datetime.datetime.strptime(line[2], "%d-%b-%y"), "data": [line[3], line[4]]}
 
-print("-----------------------------------------------------------------------------------------------------")
-print("-----------------------------------------------------------------------------------------------------")
-print("-----------------------------------------------------------------------------------------------------")
+print("################################    DICTIONARY    ################################")
 print dictJobs
 print "Total number of jobs in the dictionary: " + str(len(dictJobs))
 
 #define queue here (Kamilla)
 # t is most important counter, date is only to indicate ending date + release date
-# t=0 to start
+t = 0
 
 # Makes sense to start with the first job's release date
 current_date = dictJobs[1]['release']
@@ -31,8 +29,7 @@ current_hour = 0
 
 # While jobs are in queue or in transit
 
-###### Check date and add available jobs to queue
-# 	What's released by date
+###### Check date and add available jobs to queue - What's released by date
 # for each job from 1 to len(dictJobs)
 #   if job not in queue
 #     if job release date > current_date
@@ -52,7 +49,10 @@ current_hour = 0
 #   else: calculate lateness (job is finished)
 #     (Eric: Should we assume that lateness is by days and not by hours? Round up?)
 #     Do not need to factor in i because we don't care about the hour of the day
-#     job[]['lateness'] = (current_date - job['end'])
+#     if (current_date - job['end']) > 0:
+#       job[]['lateness'] = (current_date - job['end'])
+#     else:
+#       job[]['lateness'] = 0
 #
 # for each job in queue, check if machine is free from array. If yes, assign job to machine queue. PRIORITY QUEUE FOR MACHINE QUEUE.
 #  if job['data'][job['stage']-1][0] == empty machine
@@ -77,5 +77,16 @@ current_hour = 0
 #     else:
 #       current_hours += difference
 #
-#
-# Finally, calculate total percentage of jobs that are late. If lateness exists, increment counter by 1, divide by length of array.
+################################    RESULTS    ################################
+max_lateness = 0
+percentage_late = 0
+# for each job from 1 to len(dictJobs):
+#   temp = job[]['lateness']
+#   if temp > max_lateness:
+#     max_lateness = temp
+#   if temp > 1:
+#     percentage_late += 1
+# percentage_late = percentage_late / len(dictJobs)
+# print "################################    RESULTS    ################################"
+# print "The max lateness is: " + str(max_lateness) + "."
+# print "The percentage late is: " + str(percentage_late) + "."
