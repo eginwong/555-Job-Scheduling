@@ -6,8 +6,9 @@ ASSUMPTIONS
 2. One work day (7.5 hour time period during operational hours) is required to transport a job between different machines
 3. Assume holidays are not included.
 4. Each machine works 2 shifts of 7.5 hours per day Monday-Thursday, with 1 shift on Friday; this does not account for down time.
-5. An operation cannot be preempted; once processing begins on an operation, it cannot be stopped until complete 
-6. Each machine can work on one, and only one, operation at a time 
-7. Each job can be processed on one and only one machine at a time 
-8. Setup times are included in the processing times and they are not sequence-dependent 
+5. An operation cannot be preempted; once processing begins on an operation, it cannot be stopped until complete
+6. Each machine can work on one, and only one, operation at a time
+7. Each job can be processed on one and only one machine at a time
+8. Setup times are included in the processing times and they are not sequence-dependent
 9. Re-entrant jobs are permitted which means two or more operations of a job may be processed on the same machine
+10. If a job is completed on the same day as it is due, there is no lateness incurred. 

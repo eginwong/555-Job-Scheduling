@@ -1,39 +1,3 @@
-# need time, machine status
-# do we need to convert days to time?
-# http://stackoverflow.com/questions/6871016/adding-5-days-to-date-in-python
-#
-# Define job as array of job#, stage, release, end, lateness, actual data of stages.
-#
-# t=0 to start
-# start_date;
-#
-# While jobs are in queue or in transit
-# {
-#
-# Check date and add available jobs to queue
-# 	What's released by date
-# 	Check what's in transit
-# Refresh machines (Complete any jobs that are there)
-# 	If jobs are finished, calculate lateness
-# 	Else: toss into transit queue with time it's finished
-#
-# for each job in queue, check if machine is free. If yes, assign job to machine queue.
-# 	when assigning, store job#, t=expected end
-#
-# update time to next event (machine is free)
-# update actual date as well.
-# 	take difference in i
-#   i is most important counter, date is only to indicate ending date + release date
-#
-# 	if (day is Friday){
-# 		if i >= 7.5
-# 			move one day over
-# 	}
-# 	(complicated part of sorting out times from finishing machines)
-# }
-#
-# Finally, calculate total percentage of jobs that are late. If lateness exists, increment counter by 1, divide by length of array.
-
 import datetime
 import csv
 
@@ -45,27 +9,73 @@ with open('input.csv', 'rb') as f:
     	if(line[0].isdigit() and line[0] > 0):
             key = int(line[0])
             #Try defining dictionary
+            #Define job as array of job#, stage, release, end, lateness, actual data of stages.
             if key in dictJobs:
                 dictJobs[key]["data"].append([line[3],line[4]])
             else:
-                dictJobs[key] = {"stage": 1, "release": line[1], "end": line[2], "data": [line[3], line[4]]}
+                dictJobs[key] = {"stage": 1, "release": datetime.datetime.strptime(line[1], "%d-%b-%y"), "end": datetime.datetime.strptime(line[2], "%d-%b-%y"), "data": [line[3], line[4]]}
 
 print("-----------------------------------------------------------------------------------------------------")
 print("-----------------------------------------------------------------------------------------------------")
 print("-----------------------------------------------------------------------------------------------------")
-# print '[%s]' % ', '.join(map(str, powwowList))
 print dictJobs
 print "Total number of jobs in the dictionary: " + str(len(dictJobs))
 
-# start_date = "10/10/11"
-# date_1 = datetime.datetime.strptime(start_date, "%m/%d/%y")
+#define queue here (Kamilla)
+# t is most important counter, date is only to indicate ending date + release date
+# t=0 to start
+
+# Makes sense to start with the first job's release date
+current_date = dictJobs[1]['release']
+current_hour = 0
+
+# While jobs are in queue or in transit
+
+###### Check date and add available jobs to queue
+# 	What's released by date
+# for each job from 1 to len(dictJobs)
+#   if job not in queue
+#     if job release date > current_date
+#       add to queue
+#     else: break ('cause we know nothing is shorter afterwards)
+
+###### Check what's in transit
+# for each job in transit queue:
+#   if queue.time > t : push onto regular queue
+
+###### Refresh machines (Complete any jobs that are there)
+# create an empty array for free machines
+# for each job in machine queue:
+#   if 0 <= job['stage'] < len(job['data']):
+#     job['stage'] += 1
+# 	  toss into transit queue with time it's finished
+#   else: calculate lateness (job is finished)
+#     (Eric: Should we assume that lateness is by days and not by hours? Round up?)
+#     Do not need to factor in i because we don't care about the hour of the day
+#     job[]['lateness'] = (current_date - job['end'])
 #
-# end_date = date_1 + datetime.timedelta(days=52)
+# for each job in queue, check if machine is free from array. If yes, assign job to machine queue. PRIORITY QUEUE FOR MACHINE QUEUE.
+#  if job['data'][job['stage']-1][0] == empty machine
+#    add to priority queue (job, + t=expected)
 #
-# print str(date_1) + " and " + str(end_date)
+###### update time to next event (machine is free)
+# pop from the machine priority queue and take the new t
+# 	take difference in t1 and t2
+
+# update actual date as well.
+# while difference between t1 and t2 > 0:
+#   if current_date.weekday() < 4: #Mon-Thurs
+#     if (current_hour + difference) > 15*0.8: #means that it's more than one day
+#       current_hour = 0 #reset
+#       current_date = datetime.timedelta(days=1)
+#     else:
+#       current_hours += difference
+#   if current_date.weekday() == 4: #Fri
+#     if (current_hour + difference) > 7.5*0.8: #means that it's more than one day
+#       current_hour = 0 #reset
+#       current_date = datetime.timedelta(days=3) #move to Monday
+#     else:
+#       current_hours += difference
 #
-# #check if date is before due date.
-# print date_1 < end_date
 #
-# #if weekday = 0, Monday. if weekday >4, move day by 2
-# print date_1.weekday()
+# Finally, calculate total percentage of jobs that are late. If lateness exists, increment counter by 1, divide by length of array.
