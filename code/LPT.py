@@ -6,20 +6,43 @@ dictJobs = {}
 with open('input.csv', 'rb') as f:
     reader = csv.reader(f)
     for i, line in enumerate(reader):
-    	if(line[0].isdigit() and line[0] > 0):
+        if(line[0].isdigit() and line[0] > 0):
             key = int(line[0])
             #Try defining dictionary
             #Define job as array of job#, stage, release, end, lateness, actual data of stages.
             if key in dictJobs:
                 dictJobs[key]["data"].append([line[3],line[4]])
             else:
-                dictJobs[key] = {"stage": 1, "release": datetime.datetime.strptime(line[1], "%d-%b-%y"), "end": datetime.datetime.strptime(line[2], "%d-%b-%y"), "data": [line[3], line[4]]}
+                dictJobs[key] = {"stage": 1, "release": datetime.datetime.strptime(line[1], "%d-%b-%y"), "end": datetime.datetime.strptime(line[2], "%d-%b-%y"), "data": [[line[3], line[4]]]}
 
 print("################################    DICTIONARY    ################################")
 print dictJobs
 print "Total number of jobs in the dictionary: " + str(len(dictJobs))
 
 #define queue here (Kamilla)
+#dictionary w key: machine, value: list of [job, processingtime, stage]
+#when scheduling jobs on machine, schedule longest processing time first
+#given that predecessor jobs are complete and release date has arrived
+#each machine key has a list of jobs, ordered by longest processing time
+#tldr; each key (machine) contains a prioritized list of values (jobs) (LPT first)
+#in order to have FIFO (queue) behaviour, pop(0)
+#ONLY do the pop if the checks pass (predecessor jobs are complete, release time satisfied, machine is available)
+dictMachines = {}
+for job, values in dictJobs.iteritems():
+    stage = 1
+    for data in values['data']:
+        machinekey = data[0]
+        if machinekey in dictMachines:
+            dictMachines[machinekey].append([job,float(data[1]),stage])
+        else:
+            dictMachines[machinekey] = [[job,float(data[1]),stage]]
+        stage += 1
+    dictMachines[machinekey].sort(key=lambda x: float(x[1]), reverse=True)
+print "Total number of machines: " + str(len(dictMachines))
+
+#qtransit: we will just use a list and store [job, machine, transitendtime]
+qTransit = []
+
 # t is most important counter, date is only to indicate ending date + release date
 t = 0
 
@@ -45,7 +68,7 @@ current_hour = 0
 # for each job in machine queue:
 #   if 0 <= job['stage'] < len(job['data']):
 #     job['stage'] += 1
-# 	  toss into transit queue with time it's finished
+#     toss into transit queue with time it's finished
 #   else: calculate lateness (job is finished)
 #     (Eric: Should we assume that lateness is by days and not by hours? Round up?)
 #     Do not need to factor in i because we don't care about the hour of the day
@@ -60,7 +83,7 @@ current_hour = 0
 #
 ###### update time to next event (machine is free)
 # pop from the machine priority queue and take the new t
-# 	take difference in t1 and t2
+#   take difference in t1 and t2
 
 # update actual date as well.
 # while difference between t1 and t2 > 0:
