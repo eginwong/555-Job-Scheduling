@@ -1,5 +1,6 @@
 import datetime
 import csv
+import heapq
 
 start_date = "01-Apr-16"
 date_1 = datetime.datetime.strptime(start_date, "%d-%b-%y")
@@ -9,6 +10,18 @@ end_date = date_1 + datetime.timedelta(days=3)
 print str(date_1) + " and " + str(end_date)
 print date_1.weekday()
 print end_date.weekday()
+
+heap = []
+
+# add some values to the heap
+for value in [20, 10, 30, 50, 40]:
+    heapq.heappush(heap, value)
+
+# pop them off, in order
+print "First value is: " + str(heap[0])
+while heap:
+    print heapq.heappop(heap),
+
 #
 # #check if date is before due date.
 # print date_1 < end_date
