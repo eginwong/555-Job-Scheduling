@@ -20,8 +20,14 @@ for value in [20, 10, 30, 50, 40]:
 # pop them off, in order
 print "First value is: " + str(heap[0])
 while heap:
-    print heapq.heappop(heap),
+    print heapq.heappop(heap)
 
+h = []
+heapq.heappush(h, (5, 'write code'))
+heapq.heappush(h, (7, 'release product'))
+heapq.heappush(h, (1, 'write spec'))
+heapq.heappush(h, (3, 'create tests'))
+print h
 #
 # #check if date is before due date.
 # print date_1 < end_date

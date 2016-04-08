@@ -33,6 +33,8 @@ print "Total number of machines: " + str(len(dictMachines))
 qTransit = []
 #qArrival: Stages of jobs that are released and available.
 qArrival = []
+#qService: Machines that are in use.
+qService = []
 
 # t is most important counter, date is only to indicate ending date + release date
 t = 0
@@ -47,7 +49,7 @@ while True:
     for job in dictJobs:
         if job not in qArrival and dictJobs[job]["release"] <= current_date:
             #add to queue
-            qArrival.append(job)
+            heapq.heappush(qArrival, (float(dictJobs[job]["data"][dictJobs[job]["stage"] - 1][1]), dictJobs[job]["data"][dictJobs[job]["stage"] - 1][0], job))
         #else: break ('cause we know nothing is shorter afterwards)
         else: break
     print "TEST RESULTS ********************************"
@@ -57,23 +59,36 @@ while True:
     for job in qTransit:
         print job
         # if job.time > t : push onto regular queue
+        # heapq.heappush(qArrival, this job)
     break
 
 ###### Refresh machines (Complete any jobs that are there)
-# create an empty array for free machines
+# create an empty array for free machines (dictMachines)
+# qService is defined as (i ending, machine, job)
 # for each job in machine queue:
-#   if 0 <= job['stage'] < len(job['data']):
-#     job['stage'] += 1
-#     toss into transit queue with time it's finished
-#   else: calculate lateness (job is finished)
-#     (Eric: Should we assume that lateness is by days and not by hours? Round up?)
-#     Do not need to factor in i because we don't care about the hour of the day
-#     if (current_date - job['end']) > 0:
-#       job[]['lateness'] = (current_date - job['end'])
-#     else:
-#       job[]['lateness'] = 0
+for machine in qService:
+    # peek to see earliest time. If t > current_time, pop and do something.
+    if t >= qService[0][0]:
+        temp = heapq.heappop(qService)
+        # If the job has further stages
+        if dictJobs[temp[2]]["stage"] <= len(dictJobs[temp[2]]["data"]) + 1:
+            dictJobs[temp[2]]["stage"] += 1
+            # toss into transit queue with time it's finished
+            heapq.heappush(qTransit, (t + 7.5, temp[2]))
+        #   else: calculate lateness (job is finished)
+        else:
+        # Assume that lateness is by days and not by hours, rounded up.
+        #     Do not need to factor in i because we don't care about the hour of the day
+            difference = current_date - dictJobs[temp[2]]["end"]
+            if difference > 0:
+                dictJobs[temp[2]]["lateness"] = difference
+            else:
+                dictJobs[temp[2]]["lateness"] = 0
+    # If earliest time is still in future, break.
+    else:
+        break
 #
-# for each job in queue, check if machine is free from array. If yes, assign job to machine queue. PRIORITY QUEUE FOR MACHINE QUEUE.
+# for each job in qArrival, check if machine is free from dictMachines. If yes, assign job to machine queue. PRIORITY QUEUE FOR MACHINE QUEUE.
 #  if job['data'][job['stage']-1][0] == empty machine
 #    add to priority queue (job, + t=expected)
 #
@@ -105,13 +120,13 @@ while True:
 ################################    RESULTS    ################################
 max_lateness = 0
 percentage_late = 0
-# for each job from 1 to len(dictJobs):
-#   temp = job[]['lateness']
-#   if temp > max_lateness:
-#     max_lateness = temp
-#   if temp > 1:
-#     percentage_late += 1
-# percentage_late = percentage_late / len(dictJobs)
+# for job in dictJobs:
+#     temp = dictJobs[job]['lateness']
+#     if temp > max_lateness:
+#         max_lateness = temp
+#     if temp > 1:
+#         percentage_late += 1
+#     percentage_late = percentage_late / len(dictJobs)
 # print "################################    RESULTS    ################################"
 # print "The max lateness is: " + str(max_lateness) + "."
 # print "The percentage late is: " + str(percentage_late) + "."
