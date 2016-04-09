@@ -60,9 +60,12 @@ current_hour = 0
 while True:
     # Check date and add available jobs to queue - What's released by date
     for job in dictJobs:
-        if job not in qLeft and (float(dictJobs[job]["data"][dictJobs[job]["stage"] - 1][1]), dictJobs[job]["data"][dictJobs[job]["stage"] - 1][0], job) not in qArrival and dictJobs[job]["release"] <= current_date:
+        tupleVal = (float(dictJobs[job]["data"][dictJobs[job]["stage"] - 1][1]), dictJobs[job]["data"][dictJobs[job]["stage"] - 1][0], job)
+        tupleValServ = (float(dictJobs[job]["data"][dictJobs[job]["stage"] - 2][1]), dictJobs[job]["data"][dictJobs[job]["stage"] - 2][0], job)
+        tupleValServ = (float(dictJobs[job]["data"][dictJobs[job]["stage"] - 2][1]), dictJobs[job]["data"][dictJobs[job]["stage"] - 2][0], job)
+        if job not in qLeft and tupleVal not in qArrival and tupleValServ not in qService and tupleValOld not in qTransit and dictJobs[job]["release"] <= current_date:
             #add to queue
-            heapq.heappush(qArrival, (float(dictJobs[job]["data"][dictJobs[job]["stage"] - 1][1]), dictJobs[job]["data"][dictJobs[job]["stage"] - 1][0], job))
+            heapq.heappush(qArrival, tupleVal)
         #else: break ('cause we know nothing is shorter afterwards)
         else: break
 
@@ -108,6 +111,7 @@ while True:
     print "qArrival contains: " + str(qArrival)
     print "qService contains: " + str(qService)
     print "qTransit contains: " + str(qTransit)
+    print "qLeft contains: " + str(qLeft)
 
     # for each job in qArrival, check if machine is free from dictMachines. If yes, assign job to machine queue. PRIORITY QUEUE FOR MACHINE QUEUE.
     qHolding = [] # Temporary queue to hold popped off jobs.
@@ -133,37 +137,48 @@ while True:
 
     ###### update time to next event (machine is free)
     # pop from the machine priority queue and take the new t.
-    #TODO~~~~~~~~~~~~~~~If there is no service left, advance the time to the next arrival.
-    finishedService = qService[0]
-    tNew = finishedService[0]
-    print "The new time is: " + str(tNew)
-    # take difference in t1 and t2
-    tdelta = tNew - t
+    #~~~~~~~~~~~~~~~If there is no service left, advance the time to the next arrival.
+    if len(qService) > 0:
+        finishedService = qService[0]
+        tNew = finishedService[0]
+        print "The new time is: " + str(tNew)
+        # take difference in t1 and t2
+        tdelta = tNew - t
 
-    # update actual date as well.
-    # while difference between t1 and t2 > 0:
-    while tdelta > 0:
-        if current_date.weekday() < 4: #Mon-Thurs
-            if (current_hour + tdelta) > 15*0.8: #means that it's more than one day
-                current_hour = 0 #reset
+        # update actual date as well.
+        # while difference between t1 and t2 > 0:
+        while tdelta > 0:
+            if current_date.weekday() < 4: #Mon-Thurs
+                if (current_hour + tdelta) > 15*0.8: #means that it's more than one day
+                    current_hour = 0 #reset
+                    current_date += datetime.timedelta(days=1)
+                    tdelta -= 15*0.8 - current_hour
+                    printDate(current_date)
+                else:
+                    current_hour += tdelta
+                    tdelta = 0
+            if current_date.weekday() == 4: #Fri
+                if (current_hour + tdelta) > 7.5*0.8: #means that it's more than one day
+                    current_hour = 0 #reset
+                    current_date += datetime.timedelta(days=3) #move to Monday
+                    tdelta -= 7.5*0.8 - current_hour
+                    printDate(current_date)
+                else:
+                    current_hour += tdelta
+                    tdelta = 0
+        t = tNew
+    else:
+        # Advance time to next arrival.
+        if len(qLeft) != len(dictJobs):
+            current_hour = 0 #reset
+            if current_date.weekday() < 4: #Mon-Thurs
                 current_date += datetime.timedelta(days=1)
-                tdelta -= 15*0.8 - current_hour
-                printDate(current_date)
             else:
-                current_hour += tdelta
-                tdelta = 0
-        if current_date.weekday() == 4: #Fri
-            if (current_hour + tdelta) > 7.5*0.8: #means that it's more than one day
-                current_hour = 0 #reset
                 current_date += datetime.timedelta(days=3) #move to Monday
-                tdelta -= 7.5*0.8 - current_hour
-                printDate(current_date)
-            else:
-                current_hour += tdelta
-                tdelta = 0
-    t = tNew
+            printDate(current_date)
+
     # While jobs are in queue or in transit
-    if len(qArrival) == 0 and len (qTransit) == 0 and len (qService) == 0:
+    if len(qArrival) == 0 and len (qTransit) == 0 and len (qService) == 0 and len(qLeft) == len(dictJobs):
         print "loop complete"
         break
 
