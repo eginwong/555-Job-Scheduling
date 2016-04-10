@@ -2,7 +2,7 @@ ASSUMPTIONS
 ~~~~~~~~~~~
 
 1. Machine only has 80% true capacity (so, 7.5hrs * 80%)
-2. One work day (7.5 hour time period during operational hours) is required to transport a job between different machines
+2. One work day (7.5 hour time period during operational hours) is required to transport a job between different machines. In machine time, this is only 6 hours, due to the 80% downtime.
 3. Assume holidays are not included.
 4. Each machine works 2 shifts of 7.5 hours per day Monday-Thursday, with 1 shift on Friday; this does not account for down time.
 5. An operation cannot be preempted; once processing begins on an operation, it cannot be stopped until complete

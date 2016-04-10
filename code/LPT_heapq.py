@@ -105,7 +105,7 @@ while True:
             if dictJobs[temp[2]]["stage"] < len(dictJobs[temp[2]]["data"]):
                 dictJobs[temp[2]]["stage"] += 1
                 # toss into transit queue with time it's finished
-                heapq.heappush(qTransit, (t + 7.5, temp[2]))
+                heapq.heappush(qTransit, (t + 6, temp[2]))
                 dictJobs[temp[2]]["status"] = "TRANSITIONING"
             # else: calculate lateness (job is finished)
             else:
