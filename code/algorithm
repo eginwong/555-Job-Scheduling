@@ -3,27 +3,9 @@ LPT: sort queue by longest processing time of stages in q
 SPT: sort queue by shortest processing time of stages in q
 EDD: sort queue by earliest due date of job in q
 
-loop
-
-(m machines, n jobs, t1 to tn)
-for i = 1 to m {
-Li < 0 (load on machine i)
-J(i) < phi (jobs assigned to machine i)
-}
-
-for j=1 to n {
-i = argmink Lk (machine i has smallest load)
-J(i) <- J(i) union {j} (assign job j to machine i)
-Li <- Li + tj (update load of machine i)
-return J(1), ..., J(m)
-}
-
-
 need time, machine status
 do we need to convert days to time?
 http://stackoverflow.com/questions/6871016/adding-5-days-to-date-in-python
-
-
 
 
 Define job as array of job#, stage, release, end, lateness, actual data of stages.
