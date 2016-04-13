@@ -13,6 +13,38 @@ def printDate( current_date ):
     print "++++++++++++++++++++++++++++++++++++++++++++++++ It is currently " + switcher[current_date.weekday()] + " " + str(current_date) + " ++++++++++++++++++++++++++++++++++++++++++++++++"
     return None
 
+def process_time (queue, time):
+    global current_date
+    global current_hour
+    finishedService = queue[0]
+    tNew = finishedService[0]
+    print "The new time is: " + str(tNew)
+    # take difference in t1 and t2
+    tdelta = tNew - time
+
+    # update actual date as well.
+    # while difference between t1 and t2 > 0:
+    while tdelta > 0:
+        if current_date.weekday() < 4: #Mon-Thurs
+            if (current_hour + tdelta) > 15*0.8: #means that it's more than one day
+                current_hour = 0 #reset
+                current_date += datetime.timedelta(days=1)
+                tdelta -= 15*0.8 - current_hour
+                printDate(current_date)
+            else:
+                current_hour += tdelta
+                tdelta = 0
+        if current_date.weekday() == 4: #Fri
+            if (current_hour + tdelta) > 7.5*0.8: #means that it's more than one day
+                current_hour = 0 #reset
+                current_date += datetime.timedelta(days=3) #move to Monday
+                tdelta -= 7.5*0.8 - current_hour
+                printDate(current_date)
+            else:
+                current_hour += tdelta
+                tdelta = 0
+    return tNew
+
 dictJobs = {}
 dictMachines = {}
 #read in the csv.
@@ -37,19 +69,6 @@ print("################################    STATS    ############################
 print "Total number of jobs in the dictionary: " + str(len(dictJobs))
 print "Total number of machines: " + str(len(dictMachines))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 #qtransit: we will just use a list and store [job, machine, transitendtime]
 qTransit = []
 #qArrival: Stages of jobs that are released and available.
@@ -65,10 +84,6 @@ t = 0
 # Makes sense to start with the first job's release date. Hard code to 1 as there is no job #0.
 current_date = dictJobs[1]['release']
 current_hour = 0
-
-
-
-
 
 # no "do-while" loop in python, using similar construct. http://stackoverflow.com/questions/1662161/is-there-a-do-until-in-python
 while True:
@@ -153,64 +168,8 @@ while True:
 
     # update time to next event (machine is free). Pop from the machine priority queue and take the new t.
     #~~~~~~~~If there is no service left, advance the time to the next arrival. Generally won't happen.
-    if len(qService) > 0:
-        finishedService = qService[0]
-        tNew = finishedService[0]
-        print "The new time is: " + str(tNew)
-        # take difference in t1 and t2
-        tdelta = tNew - t
-
-        # update actual date as well.
-        # while difference between t1 and t2 > 0:
-        while tdelta > 0:
-            if current_date.weekday() < 4: #Mon-Thurs
-                if (current_hour + tdelta) > 15*0.8: #means that it's more than one day
-                    current_hour = 0 #reset
-                    current_date += datetime.timedelta(days=1)
-                    tdelta -= 15*0.8 - current_hour
-                    printDate(current_date)
-                else:
-                    current_hour += tdelta
-                    tdelta = 0
-            if current_date.weekday() == 4: #Fri
-                if (current_hour + tdelta) > 7.5*0.8: #means that it's more than one day
-                    current_hour = 0 #reset
-                    current_date += datetime.timedelta(days=3) #move to Monday
-                    tdelta -= 7.5*0.8 - current_hour
-                    printDate(current_date)
-                else:
-                    current_hour += tdelta
-                    tdelta = 0
-        t = tNew
-    elif len(qTransit) > 0:
-        finishedTransit = qTransit[0]
-        tNew = finishedTransit[0]
-        print "The new time is: " + str(tNew)
-        # take difference in t1 and t2
-        tdelta = tNew - t
-
-        # update actual date as well.
-        # while difference between t1 and t2 > 0:
-        while tdelta > 0:
-            if current_date.weekday() < 4: #Mon-Thurs
-                if (current_hour + tdelta) > 15*0.8: #means that it's more than one day
-                    current_hour = 0 #reset
-                    current_date += datetime.timedelta(days=1)
-                    tdelta -= 15*0.8 - current_hour
-                    printDate(current_date)
-                else:
-                    current_hour += tdelta
-                    tdelta = 0
-            if current_date.weekday() == 4: #Fri
-                if (current_hour + tdelta) > 7.5*0.8: #means that it's more than one day
-                    current_hour = 0 #reset
-                    current_date += datetime.timedelta(days=3) #move to Monday
-                    tdelta -= 7.5*0.8 - current_hour
-                    printDate(current_date)
-                else:
-                    current_hour += tdelta
-                    tdelta = 0
-        t = tNew
+    if len(qService) > 0: t = process_time(qService, t)
+    elif len(qTransit) > 0: t = process_time(qTransit, t)
 
     # While jobs are in queue or in transit
     if len(qArrival) == 0 and len (qTransit) == 0 and len (qService) == 0 and len(qLeft) == len(dictJobs):
@@ -226,6 +185,7 @@ for job in dictJobs:
         max_lateness = temp
     if temp > 1:
         percentage_late += 1
+print percentage_late
 percentage_late = round(float(percentage_late) / len(dictJobs) * 100, 2)
 # print "################################    RESULTS    ################################"
 print "The max lateness is: " + str(max_lateness) + "."
